@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Azure Face API Configuration",
+        "description": "Configure your Azure Face API connection.",
+        "data": {
+          "region": "Azure Region",
+          "endpoint": "Custom Endpoint URL",
+          "api_key": "API Key"
+        }
+      },
+      "person_group": {
+        "title": "Person Group Configuration",
+        "description": "Configure or create a person group for face recognition.",
+        "data": {
+          "create_new_group": "Create New Person Group",
+          "person_group_id": "Select Existing Person Group",
+          "person_group_id_manual": "Person Group ID",
+          "group_name": "Group Name",
+          "group_description": "Group Description"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Azure Face API. Please check your endpoint and network connection.",
+      "invalid_auth": "Invalid API key. Please check your Azure Face API credentials.",
+      "unknown": "Unexpected error occurred during setup.",
+      "missing_custom_endpoint": "Custom endpoint URL is required when Custom region is selected.",
+      "invalid_region": "Invalid Azure region selected.",
+      "missing_person_group_id": "Person Group ID is required when creating a new group.",
+      "missing_group_name": "Group name is required when creating a new person group.",
+      "invalid_person_group_id": "Person Group ID must contain only letters, numbers, hyphens, and underscores.",
+      "cannot_create_group": "Failed to create person group. Please check that the ID is unique and valid."
+    },
+    "abort": {
+      "already_configured": "Azure Face is already configured for this endpoint and person group."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Azure Face Options",
+        "description": "Configure advanced options for Azure Face integration.",
+        "data": {
+          "confidence_threshold": "Confidence Threshold",
+          "detection_model": "Detection Model",
+          "recognition_model": "Recognition Model"
+        }
+      }
+    }
+  },
+  "services": {
+    "recognize_face": {
+      "name": "Recognize Face",
+      "description": "Analyze camera image for face recognition using Azure Face API.",
+      "fields": {
+        "camera_entity": {
+          "name": "Camera Entity",
+          "description": "The camera entity to capture image from."
+        },
+        "confidence_threshold": {
+          "name": "Confidence Threshold",
+          "description": "Minimum confidence threshold for face identification (0.0-1.0)."
+        }
+      }
+    },
+    "train_person": {
+      "name": "Train Person",
+      "description": "Add training image for a person in the person group.",
+      "fields": {
+        "person_id": {
+          "name": "Person ID",
+          "description": "The unique identifier of the person to train."
+        },
+        "image_url": {
+          "name": "Image URL",
+          "description": "URL of the training image to add."
+        },
+        "detection_model": {
+          "name": "Detection Model",
+          "description": "The detection model to use for face detection."
+        }
+      }
+    },
+    "create_person_group": {
+      "name": "Create Person Group",
+      "description": "Create a new person group for organizing people.",
+      "fields": {
+        "person_group_id": {
+          "name": "Person Group ID",
+          "description": "Unique identifier for the person group."
+        },
+        "name": {
+          "name": "Name",
+          "description": "Display name for the person group."
+        },
+        "user_data": {
+          "name": "User Data",
+          "description": "Optional user-defined data for the person group."
+        },
+        "recognition_model": {
+          "name": "Recognition Model",
+          "description": "The recognition model to use for face identification."
+        }
+      }
+    },
+    "train_group": {
+      "name": "Train Group",
+      "description": "Train the person group to enable face identification.",
+      "fields": {
+        "person_group_id": {
+          "name": "Person Group ID",
+          "description": "The person group to train."
+        }
+      }
+    }
+  }
+}
