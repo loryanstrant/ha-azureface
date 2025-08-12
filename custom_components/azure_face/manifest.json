@@ -1,0 +1,16 @@
+{
+  "domain": "azure_face",
+  "name": "Azure Face Recognition",
+  "codeowners": ["@loryanstrant"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/loryanstrant/ha-azureface",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/loryanstrant/ha-azureface/issues",
+  "requirements": [
+    "aiohttp>=3.8.0",
+    "Pillow>=8.0.0"
+  ],
+  "version": "1.0.0"
+}

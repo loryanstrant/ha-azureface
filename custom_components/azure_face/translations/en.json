@@ -1,0 +1,70 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Azure Face API Configuration",
+        "description": "Configure your Azure Face API connection. You'll need an Azure Cognitive Services Face API key and endpoint.",
+        "data": {
+          "region": "Azure Region",
+          "endpoint": "Custom Endpoint URL (only if Custom is selected)",
+          "api_key": "API Key"
+        },
+        "data_description": {
+          "region": "Select your Azure region or choose Custom to specify a custom endpoint.",
+          "endpoint": "Enter your custom Azure Face API endpoint URL if you selected Custom region.",
+          "api_key": "Enter your Azure Face API subscription key."
+        }
+      },
+      "person_group": {
+        "title": "Person Group Configuration",
+        "description": "Configure or create a person group for face recognition. Person groups are used to organize and identify people.",
+        "data": {
+          "create_new_group": "Create New Person Group",
+          "person_group_id": "Select Existing Person Group",
+          "person_group_id_manual": "Person Group ID (for new group)",
+          "group_name": "Group Name",
+          "group_description": "Group Description (optional)"
+        },
+        "data_description": {
+          "create_new_group": "Check this to create a new person group, or uncheck to use an existing one.",
+          "person_group_id": "Select from existing person groups in your Azure Face API account.",
+          "person_group_id_manual": "Enter a unique identifier for the new person group (letters, numbers, hyphens, and underscores only).",
+          "group_name": "Enter a friendly name for the person group.",
+          "group_description": "Optionally enter a description for the person group."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Azure Face API. Please check your endpoint and network connection.",
+      "invalid_auth": "Invalid API key. Please check your Azure Face API credentials and make sure the key is active.",
+      "unknown": "Unexpected error occurred during setup. Please try again.",
+      "missing_custom_endpoint": "Custom endpoint URL is required when Custom region is selected.",
+      "invalid_region": "Invalid Azure region selected.",
+      "missing_person_group_id": "Person Group ID is required when creating a new group.",
+      "missing_group_name": "Group name is required when creating a new person group.",
+      "invalid_person_group_id": "Person Group ID must contain only letters, numbers, hyphens, and underscores.",
+      "cannot_create_group": "Failed to create person group. Please check that the ID is unique and doesn't already exist."
+    },
+    "abort": {
+      "already_configured": "Azure Face is already configured for this endpoint and person group combination."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Azure Face Options",
+        "description": "Configure advanced options for Azure Face integration.",
+        "data": {
+          "confidence_threshold": "Confidence Threshold",
+          "detection_model": "Detection Model",
+          "recognition_model": "Recognition Model"
+        },
+        "data_description": {
+          "confidence_threshold": "Minimum confidence level required for face identification (0.0 = least strict, 1.0 = most strict).",
+          "detection_model": "Azure Face detection model to use. Detection 03 is recommended for most use cases.",
+          "recognition_model": "Azure Face recognition model to use. Recognition 04 offers the best accuracy."
+        }
+      }
+    }
+  }
+}

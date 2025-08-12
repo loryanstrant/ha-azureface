@@ -1,0 +1,8 @@
+{
+  "name": "Azure Face Recognition",
+  "content_in_root": false,
+  "render_readme": true,
+  "domains": ["azure_face"],
+  "iot_class": "Cloud Polling",
+  "homeassistant": "2023.1.0"
+}
