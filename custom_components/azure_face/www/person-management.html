@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Face - Person Management</title>
+    <style>
+        body {
+            font-family: var(--primary-font-family, 'Roboto', sans-serif);
+            background-color: var(--primary-background-color, #fafafa);
+            color: var(--primary-text-color, #212121);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background-color: var(--card-background-color, white);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        
+        .card h2 {
+            margin-top: 0;
+            color: var(--primary-color, #03a9f4);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--divider-color, #e0e0e0);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: var(--primary-color, #03a9f4);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-color-dark, #0288d1);
+        }
+        
+        button:disabled {
+            background-color: var(--disabled-color, #cccccc);
+            cursor: not-allowed;
+        }
+        
+        .error {
+            color: var(--error-color, #f44336);
+            margin-top: 5px;
+        }
+        
+        .success {
+            color: var(--success-color, #4caf50);
+            margin-top: 5px;
+        }
+        
+        .status-display {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .status-succeeded {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .status-running {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .status-failed {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .file-input {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .file-input input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-input-label {
+            background-color: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+            display: block;
+            cursor: pointer;
+        }
+        
+        .file-input-label:hover {
+            background-color: #eeeeee;
+        }
+        
+        #people-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--divider-color, #e0e0e0);
+            border-radius: 4px;
+            padding: 10px;
+        }
+        
+        .person-item {
+            padding: 10px;
+            border-bottom: 1px solid var(--divider-color, #e0e0e0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .person-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Azure Face - Person Management</h1>
+        
+        <!-- Create Person Card -->
+        <div class="card">
+            <h2>Create New Person</h2>
+            <div class="form-group">
+                <label for="person-name">Person Name:</label>
+                <input type="text" id="person-name" placeholder="Enter person name">
+            </div>
+            <div class="form-group">
+                <label for="person-user-data">User Data (Optional):</label>
+                <textarea id="person-user-data" rows="3" placeholder="Optional additional information"></textarea>
+            </div>
+            <button onclick="createPerson()">Create Person</button>
+            <div id="create-person-status"></div>
+        </div>
+        
+        <!-- Upload Image Card -->
+        <div class="card">
+            <h2>Upload Person Image</h2>
+            <div class="form-group">
+                <label for="image-person-id">Person ID:</label>
+                <input type="text" id="image-person-id" placeholder="Enter person ID">
+            </div>
+            <div class="form-group">
+                <label for="image-file">Select Image File:</label>
+                <div class="file-input">
+                    <input type="file" id="image-file" accept="image/*">
+                    <label for="image-file" class="file-input-label">
+                        Click to select an image file (JPEG, PNG, BMP, GIF)
+                        <br><small>Maximum size: 6MB</small>
+                    </label>
+                </div>
+            </div>
+            <button onclick="uploadImage()">Upload Image</button>
+            <div id="upload-image-status"></div>
+        </div>
+        
+        <!-- Training Card -->
+        <div class="card">
+            <h2>Training Management</h2>
+            <button onclick="startTraining()">Start Training</button>
+            <button onclick="getTrainingStatus()">Check Training Status</button>
+            <div id="training-status"></div>
+        </div>
+        
+        <!-- People List Card -->
+        <div class="card">
+            <h2>Current People</h2>
+            <button onclick="loadPeople()">Refresh People List</button>
+            <div id="people-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get Home Assistant connection
+        let hass;
+        let hassConnection;
+        
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            // Try to get Home Assistant connection
+            if (window.parent && window.parent.hassConnection) {
+                hassConnection = window.parent.hassConnection;
+                hass = window.parent.hass;
+            } else if (window.hassConnection) {
+                hassConnection = window.hassConnection;
+                hass = window.hass;
+            }
+            
+            // Load initial data
+            loadPeople();
+            getTrainingStatus();
+        });
+
+        async function callService(domain, service, data = {}) {
+            try {
+                if (!hass) {
+                    throw new Error('Home Assistant connection not available');
+                }
+                
+                await hass.callService(domain, service, data);
+                return { success: true };
+            } catch (error) {
+                console.error('Service call failed:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function createPerson() {
+            const name = document.getElementById('person-name').value.trim();
+            const userData = document.getElementById('person-user-data').value.trim();
+            const statusDiv = document.getElementById('create-person-status');
+            
+            if (!name) {
+                statusDiv.innerHTML = '<div class="error">Please enter a person name</div>';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div>Creating person...</div>';
+            
+            const data = { name };
+            if (userData) {
+                data.user_data = userData;
+            }
+            
+            const result = await callService('azure_face', 'create_person', data);
+            
+            if (result.success) {
+                statusDiv.innerHTML = '<div class="success">Person created successfully!</div>';
+                document.getElementById('person-name').value = '';
+                document.getElementById('person-user-data').value = '';
+                // Refresh people list
+                setTimeout(loadPeople, 1000);
+            } else {
+                statusDiv.innerHTML = `<div class="error">Failed to create person: ${result.error}</div>`;
+            }
+        }
+
+        async function uploadImage() {
+            const personId = document.getElementById('image-person-id').value.trim();
+            const fileInput = document.getElementById('image-file');
+            const statusDiv = document.getElementById('upload-image-status');
+            
+            if (!personId) {
+                statusDiv.innerHTML = '<div class="error">Please enter a person ID</div>';
+                return;
+            }
+            
+            if (!fileInput.files || !fileInput.files[0]) {
+                statusDiv.innerHTML = '<div class="error">Please select an image file</div>';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            
+            // Check file size (6MB limit)
+            if (file.size > 6 * 1024 * 1024) {
+                statusDiv.innerHTML = '<div class="error">File size exceeds 6MB limit</div>';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div>Uploading image...</div>';
+            
+            try {
+                // Convert file to base64
+                const base64 = await fileToBase64(file);
+                
+                const data = {
+                    person_id: personId,
+                    image_data: base64
+                };
+                
+                const result = await callService('azure_face', 'upload_person_image', data);
+                
+                if (result.success) {
+                    statusDiv.innerHTML = '<div class="success">Image uploaded successfully!</div>';
+                    document.getElementById('image-person-id').value = '';
+                    document.getElementById('image-file').value = '';
+                    // Update file input label
+                    document.querySelector('.file-input-label').innerHTML = 
+                        'Click to select an image file (JPEG, PNG, BMP, GIF)<br><small>Maximum size: 6MB</small>';
+                } else {
+                    statusDiv.innerHTML = `<div class="error">Failed to upload image: ${result.error}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">Failed to process image: ${error.message}</div>`;
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    // Remove the data:image/...;base64, prefix
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function startTraining() {
+            const statusDiv = document.getElementById('training-status');
+            statusDiv.innerHTML = '<div>Starting training...</div>';
+            
+            const result = await callService('azure_face', 'train_group', {});
+            
+            if (result.success) {
+                statusDiv.innerHTML = '<div class="success">Training started successfully!</div>';
+                // Check status after a short delay
+                setTimeout(getTrainingStatus, 2000);
+            } else {
+                statusDiv.innerHTML = `<div class="error">Failed to start training: ${result.error}</div>`;
+            }
+        }
+
+        async function getTrainingStatus() {
+            const statusDiv = document.getElementById('training-status');
+            
+            const result = await callService('azure_face', 'get_training_status', {});
+            
+            if (result.success) {
+                // Status will be sent via event, so we just indicate that we requested it
+                statusDiv.innerHTML = '<div>Training status requested...</div>';
+            } else {
+                statusDiv.innerHTML = `<div class="error">Failed to get training status: ${result.error}</div>`;
+            }
+        }
+
+        async function loadPeople() {
+            const peopleDiv = document.getElementById('people-list');
+            peopleDiv.innerHTML = '<div>Loading people...</div>';
+            
+            const result = await callService('azure_face', 'list_persons', {});
+            
+            if (result.success) {
+                peopleDiv.innerHTML = '<div>People list requested...</div>';
+            } else {
+                peopleDiv.innerHTML = `<div class="error">Failed to load people: ${result.error}</div>`;
+            }
+        }
+
+        // Listen for Home Assistant events
+        if (window.addEventListener) {
+            window.addEventListener('hass-event', function(event) {
+                const eventData = event.detail;
+                
+                if (eventData.event_type === 'azure_face_training_status') {
+                    const data = eventData.data;
+                    const statusDiv = document.getElementById('training-status');
+                    
+                    let statusClass = 'status-display';
+                    if (data.status === 'succeeded') {
+                        statusClass += ' status-succeeded';
+                    } else if (data.status === 'running') {
+                        statusClass += ' status-running';
+                    } else if (data.status === 'failed') {
+                        statusClass += ' status-failed';
+                    }
+                    
+                    const message = data.message ? ` - ${data.message}` : '';
+                    statusDiv.innerHTML = `<div class="${statusClass}">Training Status: ${data.status}${message}</div>`;
+                }
+                
+                if (eventData.event_type === 'azure_face_person_management') {
+                    const data = eventData.data;
+                    
+                    if (data.action === 'person_created') {
+                        // Refresh people list
+                        loadPeople();
+                    }
+                    
+                    if (data.action === 'image_uploaded') {
+                        console.log('Image uploaded for person:', data.person_id);
+                    }
+                }
+                
+                if (eventData.event_type === 'azure_face_persons_list') {
+                    const data = eventData.data;
+                    const peopleDiv = document.getElementById('people-list');
+                    
+                    if (data.error) {
+                        peopleDiv.innerHTML = `<div class="error">Failed to load people: ${data.error}</div>`;
+                    } else if (data.persons) {
+                        if (data.persons.length === 0) {
+                            peopleDiv.innerHTML = '<div>No people found in this group.</div>';
+                        } else {
+                            let html = '';
+                            data.persons.forEach(person => {
+                                html += `
+                                    <div class="person-item">
+                                        <div>
+                                            <strong>${person.name}</strong><br>
+                                            <small>ID: ${person.personId}</small>
+                                            ${person.userData ? `<br><small>Data: ${person.userData}</small>` : ''}
+                                        </div>
+                                        <div>
+                                            <small>${person.persistedFaceIds ? person.persistedFaceIds.length : 0} images</small>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            peopleDiv.innerHTML = html;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update file input label when file is selected
+        document.getElementById('image-file').addEventListener('change', function(e) {
+            const label = document.querySelector('.file-input-label');
+            if (e.target.files && e.target.files[0]) {
+                const fileName = e.target.files[0].name;
+                label.innerHTML = `Selected: ${fileName}<br><small>Click to select a different file</small>`;
+            } else {
+                label.innerHTML = 'Click to select an image file (JPEG, PNG, BMP, GIF)<br><small>Maximum size: 6MB</small>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -51,11 +51,34 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Set up services
     await async_setup_services(hass)
 
+    # Register the person management panel
+    async_register_panel(hass)
+
     # Set up platforms if any are defined
     if PLATFORMS:
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
+
+
+def async_register_panel(hass: HomeAssistant) -> None:
+    """Register the person management panel."""
+    # Register the static files
+    hass.http.register_static_path(
+        f"/{DOMAIN}",
+        hass.config.path(f"custom_components/{DOMAIN}/www"),
+        True,
+    )
+    
+    # Register the panel using the correct method
+    hass.components.frontend.async_register_built_in_panel(
+        "iframe",
+        "Azure Face",
+        "mdi:face-recognition",
+        DOMAIN,
+        {"url": f"/{DOMAIN}/person-management.html"},
+        require_admin=True,
+    )
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

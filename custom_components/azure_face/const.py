@@ -15,6 +15,10 @@ SERVICE_RECOGNIZE_FACE = "recognize_face"
 SERVICE_TRAIN_PERSON = "train_person"
 SERVICE_CREATE_PERSON_GROUP = "create_person_group"
 SERVICE_TRAIN_GROUP = "train_group"
+SERVICE_CREATE_PERSON = "create_person"
+SERVICE_UPLOAD_PERSON_IMAGE = "upload_person_image"
+SERVICE_GET_TRAINING_STATUS = "get_training_status"
+SERVICE_LIST_PERSONS = "list_persons"
 
 # Default values
 DEFAULT_TIMEOUT = 10
@@ -57,6 +61,29 @@ SERVICE_CREATE_PERSON_GROUP_SCHEMA = vol.Schema({
 
 SERVICE_TRAIN_GROUP_SCHEMA = vol.Schema({
     vol.Required(CONF_PERSON_GROUP_ID): cv.string,
+})
+
+SERVICE_CREATE_PERSON_SCHEMA = vol.Schema({
+    vol.Required("name"): cv.string,
+    vol.Optional("user_data"): cv.string,
+    vol.Optional(CONF_PERSON_GROUP_ID): cv.string,
+})
+
+SERVICE_UPLOAD_PERSON_IMAGE_SCHEMA = vol.Schema({
+    vol.Required("person_id"): cv.string,
+    vol.Optional("image_data"): cv.string,  # Base64 encoded image
+    vol.Optional("image_path"): cv.string,  # File path
+    vol.Optional("image_url"): cv.url,      # URL (existing functionality)
+    vol.Optional("detection_model", default="detection_03"): cv.string,
+    vol.Optional(CONF_PERSON_GROUP_ID): cv.string,
+})
+
+SERVICE_GET_TRAINING_STATUS_SCHEMA = vol.Schema({
+    vol.Optional(CONF_PERSON_GROUP_ID): cv.string,
+})
+
+SERVICE_LIST_PERSONS_SCHEMA = vol.Schema({
+    vol.Optional(CONF_PERSON_GROUP_ID): cv.string,
 })
 
 # Error codes

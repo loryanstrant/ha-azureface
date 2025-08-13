@@ -218,6 +218,11 @@ class AzureFaceClient:
         url = f"{self.endpoint}/face/v1.0/persongroups/{person_group_id}/persons"
         return await self._make_request("GET", url)
 
+    async def get_person(self, person_group_id: str, person_id: str) -> Dict[str, Any]:
+        """Get a specific person from a person group."""
+        url = f"{self.endpoint}/face/v1.0/persongroups/{person_group_id}/persons/{person_id}"
+        return await self._make_request("GET", url)
+
     async def _validate_image(self, image_data: bytes) -> None:
         """Validate image data."""
         if len(image_data) > MAX_IMAGE_SIZE:

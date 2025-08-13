@@ -114,6 +114,74 @@
           "description": "The person group to train."
         }
       }
+    },
+    "create_person": {
+      "name": "Create Person",
+      "description": "Create a new person in the person group.",
+      "fields": {
+        "name": {
+          "name": "Person Name",
+          "description": "The name of the person to create."
+        },
+        "user_data": {
+          "name": "User Data",
+          "description": "Optional user-defined data for the person."
+        },
+        "person_group_id": {
+          "name": "Person Group ID",
+          "description": "The person group to add the person to (optional, uses default if not specified)."
+        }
+      }
+    },
+    "upload_person_image": {
+      "name": "Upload Person Image",
+      "description": "Upload an image for a person to improve recognition accuracy.",
+      "fields": {
+        "person_id": {
+          "name": "Person ID",
+          "description": "The unique identifier of the person."
+        },
+        "image_data": {
+          "name": "Image Data (Base64)",
+          "description": "Base64 encoded image data."
+        },
+        "image_path": {
+          "name": "Image File Path",
+          "description": "Path to the image file on the system."
+        },
+        "image_url": {
+          "name": "Image URL",
+          "description": "URL of the image to upload."
+        },
+        "detection_model": {
+          "name": "Detection Model",
+          "description": "The detection model to use for face detection."
+        },
+        "person_group_id": {
+          "name": "Person Group ID",
+          "description": "The person group containing the person (optional, uses default if not specified)."
+        }
+      }
+    },
+    "get_training_status": {
+      "name": "Get Training Status",
+      "description": "Get the current training status of the person group.",
+      "fields": {
+        "person_group_id": {
+          "name": "Person Group ID",
+          "description": "The person group to check training status for (optional, uses default if not specified)."
+        }
+      }
+    },
+    "list_persons": {
+      "name": "List Persons",
+      "description": "List all persons in the person group.",
+      "fields": {
+        "person_group_id": {
+          "name": "Person Group ID",
+          "description": "The person group to list persons from (optional, uses default if not specified)."
+        }
+      }
     }
   }
 }
