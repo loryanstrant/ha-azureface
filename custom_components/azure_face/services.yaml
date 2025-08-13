@@ -1,0 +1,187 @@
+recognize_face:
+  name: Recognize face
+  description: Recognize faces in camera image using Azure Face API.
+  fields:
+    camera_entity:
+      name: Camera entity
+      description: The camera entity to capture image from.
+      required: true
+      selector:
+        entity:
+          domain: camera
+    confidence_threshold:
+      name: Confidence threshold
+      description: Minimum confidence threshold for face recognition (0.0-1.0).
+      required: false
+      default: 0.7
+      selector:
+        number:
+          min: 0.0
+          max: 1.0
+          step: 0.01
+
+train_person:
+  name: Train person
+  description: Add training image for a person from URL.
+  fields:
+    person_id:
+      name: Person ID
+      description: The ID of the person to add training image for.
+      required: true
+      selector:
+        text:
+    image_url:
+      name: Image URL
+      description: URL of the image to add as training data.
+      required: true
+      selector:
+        text:
+    detection_model:
+      name: Detection model
+      description: The face detection model to use.
+      required: false
+      default: "detection_03"
+      selector:
+        select:
+          options:
+            - "detection_01"
+            - "detection_02"
+            - "detection_03"
+
+create_person_group:
+  name: Create person group
+  description: Create a new person group in Azure Face API.
+  fields:
+    person_group_id:
+      name: Person group ID
+      description: Unique identifier for the person group.
+      required: true
+      selector:
+        text:
+    name:
+      name: Name
+      description: Display name for the person group.
+      required: true
+      selector:
+        text:
+    user_data:
+      name: User data
+      description: Optional user data for the person group.
+      required: false
+      selector:
+        text:
+    recognition_model:
+      name: Recognition model
+      description: The face recognition model to use.
+      required: false
+      default: "recognition_04"
+      selector:
+        select:
+          options:
+            - "recognition_01"
+            - "recognition_02"
+            - "recognition_03"
+            - "recognition_04"
+
+train_group:
+  name: Train group
+  description: Train a person group to improve recognition accuracy.
+  fields:
+    person_group_id:
+      name: Person group ID
+      description: The ID of the person group to train.
+      required: true
+      selector:
+        text:
+
+create_person:
+  name: Create person
+  description: Create a new person in the person group.
+  fields:
+    name:
+      name: Name
+      description: Display name for the person.
+      required: true
+      selector:
+        text:
+    user_data:
+      name: User data
+      description: Optional user data for the person.
+      required: false
+      selector:
+        text:
+    person_group_id:
+      name: Person group ID
+      description: The ID of the person group. Uses default if not provided.
+      required: false
+      selector:
+        text:
+
+upload_person_image:
+  name: Upload person image
+  description: Upload an image for a person using multiple input methods.
+  fields:
+    person_id:
+      name: Person ID
+      description: The ID of the person to add image for.
+      required: true
+      selector:
+        text:
+    image_data:
+      name: Image data (Base64)
+      description: Base64 encoded image data.
+      required: false
+      selector:
+        text:
+          multiline: true
+    image_path:
+      name: Image path
+      description: File path to the image.
+      required: false
+      selector:
+        text:
+    image_url:
+      name: Image URL
+      description: URL of the image to download.
+      required: false
+      selector:
+        text:
+    detection_model:
+      name: Detection model
+      description: The face detection model to use.
+      required: false
+      default: "detection_03"
+      selector:
+        select:
+          options:
+            - "detection_01"
+            - "detection_02"
+            - "detection_03"
+    person_group_id:
+      name: Person group ID
+      description: The ID of the person group. Uses default if not provided.
+      required: false
+      selector:
+        text:
+
+get_training_status:
+  name: Get training status
+  description: Get the training status of the person group.
+  fields:
+    person_group_id:
+      name: Person group ID
+      description: The ID of the person group. Uses default if not provided.
+      required: false
+      selector:
+        text:
+
+list_persons:
+  name: List persons
+  description: List all persons in the person group.
+  fields:
+    person_group_id:
+      name: Person group ID
+      description: The ID of the person group. Uses default if not provided.
+      required: false
+      selector:
+        text:
