@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.typing import ConfigType
+from homeassistant.typing import ConfigType
 
 from .azure_client import AzureFaceClient, AzureFaceAPIError
 from .const import DOMAIN, CONF_API_KEY, CONF_ENDPOINT, CONF_PERSON_GROUP_ID
