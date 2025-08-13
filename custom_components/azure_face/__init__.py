@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await async_setup_services(hass)
 
     # Register the person management panel
-    async_register_panel(hass)
+    await async_register_panel(hass)
 
     # Set up platforms if any are defined
     if PLATFORMS:
@@ -61,10 +61,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-def async_register_panel(hass: HomeAssistant) -> None:
+async def async_register_panel(hass: HomeAssistant) -> None:
     """Register the person management panel."""
     # Register the static files
-    hass.http.async_register_static_paths([
+    await hass.http.async_register_static_paths([
         {
             "path": f"/{DOMAIN}",
             "file_path": hass.config.path(f"custom_components/{DOMAIN}/www"),
@@ -72,15 +72,37 @@ def async_register_panel(hass: HomeAssistant) -> None:
         }
     ])
     
-    # Register the panel using the correct method
-    hass.components.frontend.async_register_built_in_panel(
-        "iframe",
-        "Azure Face",
-        "mdi:face-recognition",
-        DOMAIN,
-        {"url": f"/{DOMAIN}/person-management.html"},
-        require_admin=True,
-    )
+    # Register the panel using the most compatible approach
+    try:
+        # This is the modern approach for Home Assistant 2023.x+
+        from homeassistant.helpers import panel_iframe
+        await panel_iframe.async_register_panel(
+            hass,
+            DOMAIN,
+            "Azure Face",
+            "mdi:face-recognition",
+            f"/{DOMAIN}/person-management.html",
+            require_admin=True,
+        )
+    except (ImportError, AttributeError):
+        # Fallback for older Home Assistant versions
+        _LOGGER.warning("Could not register panel using panel_iframe helper, trying alternative method")
+        try:
+            # Try using the entity registry approach
+            await hass.helpers.discovery.async_load_platform(
+                "frontend", 
+                "panel", 
+                {
+                    "frontend_url_path": DOMAIN,
+                    "title": "Azure Face",
+                    "icon": "mdi:face-recognition",
+                    "config": {"url": f"/{DOMAIN}/person-management.html"},
+                    "require_admin": True,
+                },
+                {}
+            )
+        except Exception as ex:
+            _LOGGER.warning("Unable to register Azure Face panel: %s", ex)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
