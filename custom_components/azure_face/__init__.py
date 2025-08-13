@@ -64,11 +64,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 def async_register_panel(hass: HomeAssistant) -> None:
     """Register the person management panel."""
     # Register the static files
-    hass.http.register_static_path(
-        f"/{DOMAIN}",
-        hass.config.path(f"custom_components/{DOMAIN}/www"),
-        True,
-    )
+    hass.http.async_register_static_paths([
+        {
+            "path": f"/{DOMAIN}",
+            "file_path": hass.config.path(f"custom_components/{DOMAIN}/www"),
+            "cache_headers": True,
+        }
+    ])
     
     # Register the panel using the correct method
     hass.components.frontend.async_register_built_in_panel(
