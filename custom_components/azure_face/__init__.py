@@ -1,5 +1,4 @@
 """The Azure Face integration."""
-import asyncio
 import logging
 from typing import Any, Dict
 
@@ -86,20 +85,16 @@ async def async_register_panel(hass: HomeAssistant) -> None:
         )
     except (ImportError, AttributeError):
         # Fallback for older Home Assistant versions
-        _LOGGER.warning("Could not register panel using panel_iframe helper, trying alternative method")
+        _LOGGER.warning("Could not register panel using panel_iframe helper, trying fallback method")
         try:
-            # Try using the entity registry approach
-            await hass.helpers.discovery.async_load_platform(
-                "frontend", 
-                "panel", 
-                {
-                    "frontend_url_path": DOMAIN,
-                    "title": "Azure Face",
-                    "icon": "mdi:face-recognition",
-                    "config": {"url": f"/{DOMAIN}/person-management.html"},
-                    "require_admin": True,
-                },
-                {}
+            # Use the standard frontend panel registration
+            hass.components.frontend.async_register_built_in_panel(
+                "iframe",
+                "Azure Face",
+                "mdi:face-recognition",
+                DOMAIN,
+                {"url": f"/{DOMAIN}/person-management.html"},
+                require_admin=True,
             )
         except Exception as ex:
             _LOGGER.warning("Unable to register Azure Face panel: %s", ex)
