@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await async_setup_services(hass)
 
     # Register the person management panel
-    await async_register_panel(hass)
+    async_register_panel(hass)
 
     # Set up platforms if any are defined
     if PLATFORMS:
@@ -61,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def async_register_panel(hass: HomeAssistant) -> None:
+def async_register_panel(hass: HomeAssistant) -> None:
     """Register the person management panel."""
     # Register the static files
     hass.http.register_static_path(

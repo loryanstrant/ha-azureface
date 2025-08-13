@@ -8,6 +8,7 @@ A comprehensive Home Assistant custom integration for Azure AI facial recognitio
 - **Face Recognition**: Analyze camera images for face detection and identification
 - **Training System**: Add and manage training images for people
 - **Person Group Management**: Create and organize person groups
+- **Person Management GUI**: Comprehensive web interface for managing people and training
 - **Camera Integration**: Direct integration with Home Assistant camera entities
 - **Event-Driven**: Publishes recognition results as Home Assistant events
 - **HACS Compatible**: Easy installation through HACS
@@ -42,6 +43,17 @@ A comprehensive Home Assistant custom integration for Azure AI facial recognitio
    - Enter your Azure Face API key
    - Choose to create a new person group or select an existing one
 
+## Person Management GUI
+
+After configuration, access the person management interface through the Home Assistant sidebar:
+
+1. Look for the **Azure Face** panel in the sidebar
+2. Use the interface to:
+   - **Create New People**: Add people to your person group
+   - **Upload Images**: Add training images for better recognition
+   - **Manage Training**: Start training and monitor status
+   - **View People**: List all people in your person group
+
 ## Services
 
 ### `azure_face.recognize_face`
@@ -60,21 +72,78 @@ data:
   confidence_threshold: 0.8
 ```
 
-### `azure_face.train_person`
+### `azure_face.create_person`
 
-Add a training image for a person.
+Create a new person in the person group.
 
 **Parameters:**
-- `person_id` (required): Unique identifier of the person
-- `image_url` (required): URL of the training image
-- `detection_model` (optional): Detection model to use (default: "detection_03")
+- `name` (required): Name of the person
+- `user_data` (optional): Additional user-defined data
+- `person_group_id` (optional): Person group ID (uses default if not specified)
 
 **Example:**
 ```yaml
-service: azure_face.train_person
+service: azure_face.create_person
 data:
-  person_id: "john_doe"
-  image_url: "https://example.com/john_photo.jpg"
+  name: "John Doe"
+  user_data: "Employee ID: 12345"
+```
+
+### `azure_face.upload_person_image`
+
+Upload an image for a person with multiple input methods.
+
+**Parameters:**
+- `person_id` (required): Unique identifier of the person
+- `image_data` (optional): Base64 encoded image data
+- `image_path` (optional): Path to image file on the system
+- `image_url` (optional): URL of the image to upload
+- `detection_model` (optional): Detection model to use (default: "detection_03")
+- `person_group_id` (optional): Person group ID (uses default if not specified)
+
+**Examples:**
+```yaml
+# Upload from file path
+service: azure_face.upload_person_image
+data:
+  person_id: "abc123-def456"
+  image_path: "/config/images/john_doe.jpg"
+
+# Upload from URL
+service: azure_face.upload_person_image
+data:
+  person_id: "abc123-def456"
+  image_url: "https://example.com/photo.jpg"
+
+# Upload base64 data
+service: azure_face.upload_person_image
+data:
+  person_id: "abc123-def456"
+  image_data: "iVBORw0KGgoAAAANSUhEUgAA..."
+```
+
+### `azure_face.get_training_status`
+
+Get the current training status of the person group.
+
+**Parameters:**
+- `person_group_id` (optional): Person group to check (uses default if not specified)
+
+**Example:**
+```yaml
+service: azure_face.get_training_status
+```
+
+### `azure_face.list_persons`
+
+List all persons in the person group.
+
+**Parameters:**
+- `person_group_id` (optional): Person group to list from (uses default if not specified)
+
+**Example:**
+```yaml
+service: azure_face.list_persons
 ```
 
 ### `azure_face.create_person_group`
@@ -115,6 +184,36 @@ Fired when training operations are completed.
 ### `azure_face_group_management`
 
 Fired when person group operations are completed.
+
+### `azure_face_person_management`
+
+Fired when person management operations are completed.
+
+**Event Data:**
+- `person_group_id`: The person group ID
+- `person_id`: The person ID (for person-specific operations)
+- `action`: The action performed (person_created, image_uploaded)
+- `error`: Error message if operation failed
+
+### `azure_face_training_status`
+
+Fired when training status is requested.
+
+**Event Data:**
+- `person_group_id`: The person group ID
+- `status`: Current training status (running, succeeded, failed)
+- `created_time`: When training was created
+- `last_action_time`: Last action timestamp
+- `message`: Additional status message
+
+### `azure_face_persons_list`
+
+Fired when persons list is requested.
+
+**Event Data:**
+- `person_group_id`: The person group ID
+- `persons`: Array of person objects
+- `error`: Error message if operation failed
 
 ## Requirements
 
