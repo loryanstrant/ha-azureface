@@ -27,7 +27,7 @@ from .const import (
     ERROR_NO_FACE_DETECTED,
     ERROR_MULTIPLE_FACES,
 )
-from . import get_azure_face_client, get_person_group_id
+from .helpers import get_azure_face_client, get_person_group_id
 
 _LOGGER = logging.getLogger(__name__)
 
