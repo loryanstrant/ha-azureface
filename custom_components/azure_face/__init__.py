@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.typing import ConfigType
+
 
 from .azure_client import AzureFaceClient, AzureFaceAPIError
 from .const import DOMAIN, CONF_API_KEY, CONF_ENDPOINT, CONF_PERSON_GROUP_ID
@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = []
 
 
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+async def async_setup(hass: HomeAssistant, config: Dict[str, Any]) -> bool:
     """Set up the Azure Face integration."""
     hass.data.setdefault(DOMAIN, {})
     return True
