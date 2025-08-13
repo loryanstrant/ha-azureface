@@ -27,12 +27,12 @@ from .const import (
     ERROR_NO_FACE_DETECTED,
     ERROR_MULTIPLE_FACES,
 )
-from . import get_azure_face_client, get_person_group_id
+# Removed circular import - client and person_group_id will be passed as parameters
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_services(hass: HomeAssistant) -> None:
+async def async_setup_services(hass: HomeAssistant, client, person_group_id: str) -> None:
     """Set up the Azure Face services."""
     
     async def async_recognize_face(call: ServiceCall) -> None:
@@ -41,9 +41,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         confidence_threshold = call.data.get("confidence_threshold", 0.7)
         
         try:
-            # Get the Azure Face client
-            client = await get_azure_face_client(hass)
-            person_group_id = await get_person_group_id(hass)
+            # Use the passed client and person_group_id
             
             # Get image from camera
             image_data = await async_get_image(hass, camera_entity)
@@ -146,9 +144,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         detection_model = call.data.get("detection_model", "detection_03")
         
         try:
-            # Get the Azure Face client
-            client = await get_azure_face_client(hass)
-            person_group_id = await get_person_group_id(hass)
+            # Use the passed client and person_group_id
             
             # Download image from URL
             async with aiohttp.ClientSession() as session:
@@ -198,8 +194,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         recognition_model = call.data.get("recognition_model", "recognition_04")
         
         try:
-            # Get the Azure Face client
-            client = await get_azure_face_client(hass)
+            # Use the passed client
             
             # Create person group
             await client.create_person_group(
@@ -239,8 +234,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         person_group_id = call.data[CONF_PERSON_GROUP_ID]
         
         try:
-            # Get the Azure Face client
-            client = await get_azure_face_client(hass)
+            # Use the passed client
             
             # Start training
             await client.train_person_group(person_group_id)

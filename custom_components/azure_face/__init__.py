@@ -49,7 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     # Set up services
-    await async_setup_services(hass)
+    await async_setup_services(hass, client, person_group_id)
 
     # Set up platforms if any are defined
     if PLATFORMS:
